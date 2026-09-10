@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub App Upload - Code Tech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b, #311042);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+            color: #f8fafc;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .marquee-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            padding: 10px 0;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            white-space: nowrap;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+        .marquee-container marquee {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .upload-container {
+            width: 100%;
+            max-width: 400px;
+        }
+        .config-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .config-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            margin-bottom: 20px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            background: rgba(15, 23, 42, 0.6);
+            color: #fff;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+        }
+        .logo-preview-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .logo-preview {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.5);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+        }
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .terminal-box {
+            width: 100%;
+            max-width: 360px;
+            background: #090d16;
+            border: 1px solid #38bdf8;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+        .terminal-title {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-left: 6px;
+            letter-spacing: 1px;
+        }
+        .terminal-logs {
+            font-size: 13px;
+            color: #4ade80;
+            min-height: 80px;
+            max-height: 120px;
+            overflow-y: hidden;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .cursor {
+            display: inline-block;
+            width: 6px;
+            height: 14px;
+            background: #4ade80;
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        #resultBox {
+            margin-top: 16px;
+            font-size: 13px;
+            word-break: break-all;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loadingOverlay">
+        <div class="terminal-box">
+            <div class="terminal-header">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+                <span class="terminal-title">GITHUB_API_UPLINK</span>
+            </div>
+            <div class="terminal-logs" id="terminalLogs"></div><span class="cursor"></span>
+        </div>
+    </div>
+
+    <div class="upload-container">
+        <div class="marquee-container">
+            <marquee behavior="scroll" direction="left">🚀 GITHUB RELEASES APP HUB — CREATED BY CODE TECH 🚀</marquee>
+        </div>
+
+        <div class="config-card">
+            <h3><span class="material-icons">code</span> GitHub Upload</h3>
+            <form id="uploadForm" onsubmit="uploadAppToGitHub(event)">
+                <div class="form-group">
+                    <label for="ghToken">GitHub Token</label>
+                    <input type="password" id="ghToken" value="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" required>
+                </div>
+                <div class="form-group">
+                    <label for="ghOwner">GitHub Username (Owner)</label>
+                    <input type="text" id="ghOwner" value="codetech281920-ctr7" required>
+                </div>
+                <div class="form-group">
+                    <label for="ghRepo">Repository Name</label>
+                    <input type="text" id="ghRepo" value="code-tech-store" required>
+                </div>
+                <div class="form-group">
+                    <label for="appName">Pangalan ng App</label>
+                    <input type="text" id="appName" placeholder="Hal. Cyber Game" required>
+                </div>
+                <div class="form-group">
+                    <label for="appCategory">Kategorya</label>
+                    <input type="text" id="appCategory" placeholder="Hal. Action / Tools" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="appLogo">App Logo / Icon</label>
+                    <div class="logo-preview-container">
+                        <div class="logo-preview" id="logoPreviewBox">
+                            <span class="material-icons" style="color: #64748b;">image</span>
+                        </div>
+                        <input type="file" id="appLogo" accept="image/*" onchange="previewLogo(event)" required style="font-size: 11px; padding: 6px; background: transparent;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="appFile">App File (.apk, .zip)</label>
+                    <input type="file" id="appFile" accept=".apk,.zip,.rar,.aab" required style="font-size: 11px; padding: 6px; background: transparent;">
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <span class="material-icons">rocket_launch</span> I-publish sa GitHub
+                </button>
+            </form>
+            <div id="resultBox"></div>
+        </div>
+    </div>
+
+    <script>
+        function previewLogo(event) {
+            const file = event.target.files[0];
+            const previewBox = document.getElementById('logoPreviewBox');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewBox.innerHTML = `<img src="${e.target.result}" alt="Logo">`;
+                }
+                reader.readAsDataURL(file);
+            } else {
+                previewBox.innerHTML = `<span class="material-icons" style="color: #64748b;">image</span>`;
+            }
+        }
+
+        async function typeLog(text, elementId, speed = 30) {
+            const el = document.getElementById(elementId);
+            el.innerHTML += "> ";
+            for (let i = 0; i < text.length; i++) {
+                el.innerHTML += text.charAt(i);
+                await new Promise(resolve => setTimeout(resolve, speed));
+            }
+            el.innerHTML += "<br>";
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function uploadAppToGitHub(event) {
+            event.preventDefault();
+
+            const token = document.getElementById('ghToken').value.trim();
+            const owner = document.getElementById('ghOwner').value.trim();
+            const repo = document.getElementById('ghRepo').value.trim();
+            const appName = document.getElementById('appName').value.trim();
+            const appCategory = document.getElementById('appCategory').value.trim();
+            const fileInput = document.getElementById('appFile');
+            const logoInput = document.getElementById('appLogo');
+            const resultBox = document.getElementById('resultBox');
+            const terminalLogs = document.getElementById('terminalLogs');
+
+            if (fileInput.files.length === 0 || logoInput.files.length === 0) {
+                alert("Pumili muna ng app file at logo.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const logoFile = logoInput.files[0];
+            const uniqueId = Math.floor(Math.random() * 1000000);
+            const tagName = `app-${uniqueId}`;
+            const releaseName = `${appName} (${uniqueId})`;
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            terminalLogs.innerHTML = "";
+            resultBox.style.display = 'none';
+
+            try {
+                await typeLog("Processing app logo...", "terminalLogs", 15);
+                const logoBase64 = await getBase64(logoFile);
+
+                await typeLog("Connecting to GitHub API...", "terminalLogs", 20);
+                
+                const releaseResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tag_name: tagName,
+                        name: releaseName,
+                        body: `Automated release for ${appName}`
+                    })
+                });
+
+                const releaseData = await releaseResponse.json();
+                if (!releaseResponse.ok) {
+                    throw new Error(releaseData.message || "Validation Failed: Suriin ang Token, Username, o Repository.");
+                }
+
+                await typeLog("Release created successfully.", "terminalLogs", 20);
+                await typeLog("Uploading asset file...", "terminalLogs", 25);
+
+                const uploadUrlTemplate = releaseData.upload_url.split('{')[0];
+                const uploadUrl = `${uploadUrlTemplate}?name=${encodeURIComponent(file.name)}`;
+
+                const uploadResponse = await fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/octet-stream',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: file
+                });
+
+                const uploadData = await uploadResponse.json();
+                if (!uploadResponse.ok) {
+                    throw new Error("Nabigong i-upload ang file sa asset.");
+                }
+
+                const downloadUrl = uploadData.browser_download_url;
+                
+                await typeLog("Saving to local store...", "terminalLogs", 20);
+                const currentDate = new Date().toLocaleDateString('en-CA');
+                
+                let appsList = JSON.parse(localStorage.getItem('gofile_store_apps')) || [];
+                appsList.unshift({ name: appName, category: appCategory, logo: logoBase64, url: downloadUrl, date: currentDate });
+                
+                try {
+                    localStorage.setItem('gofile_store_apps', JSON.stringify(appsList));
+                } catch (e) {
+                    throw new Error("Puno na ang Storage ng browser. Mangyaring magbura ng ilang lumang apps.");
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+                document.getElementById('loadingOverlay').style.display = 'none';
+
+                resultBox.style.display = 'block';
+                resultBox.innerHTML = `
+                    <p style="color: #4ade80; font-weight: bold; margin-bottom: 4px;">✔ GITHUB UPLOAD COMPLETE!</p>
+                    <p>Link: <a href="${downloadUrl}" target="_blank" style="color: #38bdf8;">${downloadUrl}</a></p>
+                `;
+                document.getElementById('uploadForm').reset();
+                document.getElementById('ghToken').value = token;
+                document.getElementById('ghOwner').value = owner;
+                document.getElementById('ghRepo').value = repo;
+                document.getElementById('logoPreviewBox').innerHTML = `<span class="material-icons" style="color: #64748b;">image</span>`;
+
+            } catch (error) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                resultBox.style.display = 'block';
+                resultBox.innerHTML = `<p style="color: #f87171;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
